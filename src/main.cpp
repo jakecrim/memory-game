@@ -1,19 +1,21 @@
 #include <Arduino.h>
 #include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 
 /* DECLARATIONS*/
 
 /* DEFINES */
 int main_fn(void);
-void LCD_Task(void);
+void LCD_Task(int);
 void openGPIO(void);
 int scan_I2C_Devices();
 
 /* GLOBALS */
-
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 int main_fn()
 {
+    int loopCounter = 0;
     openGPIO();
     // scan_I2C_Devices();
 
@@ -21,11 +23,30 @@ int main_fn()
     while(1)
     {
         Serial.println("In infinite while loop:");
-        // LCD_Task();
+        LCD_Task(loopCounter);
+        loopCounter++;
         delay(1000);
     }
 
     return 0;
+}
+
+void LCD_Task(int count)
+{
+    lcd.setCursor(1,0);
+    lcd.print("Top line: ");
+    lcd.print(count);
+    lcd.setCursor(0,1);
+    lcd.print("Bottom line: ");
+    lcd.print(count);
+}
+
+void openGPIO()
+{
+    // Opens the wire library to be used for I2C control of the LCD display
+    Wire.begin();
+    lcd.init();
+    lcd.backlight();
 }
 
 int scan_I2C_Devices()
@@ -40,7 +61,7 @@ int scan_I2C_Devices()
         error = Wire.endTransmission();
         if(error == 0)
         {
-            Serial.print("I2C device found at address: 0x");
+            Serial.println("I2C device found at address: 0x");
             if(address < 16)
                 Serial.print("0");
             Serial.print(address,HEX);
@@ -62,17 +83,6 @@ int scan_I2C_Devices()
         Serial.println("Done scanning:");
 
     return 0;
-}
-
-void LCD_Task()
-{
-
-}
-
-void openGPIO()
-{
-    // Opens the wire library to be used for I2C control of the LCD display
-    Wire.begin();
 }
 
 /* ONLY USED TO GET TO MAIN AND SETUP SERIAL !!! */
