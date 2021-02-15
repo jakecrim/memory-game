@@ -3,12 +3,12 @@
 #include <LiquidCrystal_I2C.h>
 
 /* DECLARATIONS*/
-
-/* DEFINES */
 int main_fn(void);
 void LCD_Task(int);
 void openGPIO(void);
 int scan_I2C_Devices();
+
+/* DEFINES */
 
 /* GLOBALS */
 LiquidCrystal_I2C lcd(0x27, 16, 2);
