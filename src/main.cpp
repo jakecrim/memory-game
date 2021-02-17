@@ -34,7 +34,7 @@ int main_fn()
 void LCD_Task(int count)
 {
     lcd.setCursor(1,0);
-    lcd.print("Top line: ");
+    lcd.print("Round: ");
     lcd.print(count);
     lcd.setCursor(0,1);
     lcd.print("Bottom line: ");
