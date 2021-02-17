@@ -2,26 +2,33 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <Servo.h>
+#include <LedControl.h>
 
 /* DECLARATIONS*/
 int main_fn(void);
 void LCD_Task(int);
 void openGPIO(void);
-int scan_I2C_Devices();
-void JoystickServo();
+int scan_I2C_Devices(void);
+void JoystickServo(void);
+void waveLEDTask(void);
 
 /* DEFINES */
 #define SERVO_PIN 9
 #define GROUND_JOY_PIN A3
 #define VOUT_JOY_PIN A2
 #define XJOY_PIN A1
+#define LED_MATRIX_CLK  13
+#define LED_MATRIX_CS   12
+#define LED_MATRIX_DIN  11
 
 /* GLOBALS */
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 Servo myservo;
+LedControl dotMatrix1 = LedControl(LED_MATRIX_CLK, LED_MATRIX_CS, LED_MATRIX_DIN,1);
 
 int main_fn()
 {
+    
     int loopCounter = 0;
     openGPIO();
     scan_I2C_Devices();
@@ -31,13 +38,19 @@ int main_fn()
     {
         Serial.println("In infinite while loop:");
         JoystickServo();
+        waveLEDTask();
         LCD_Task(loopCounter);
         loopCounter++;
-        //delay(1000);
+        delay(100);
 
     }
 
     return 0;
+}
+
+void waveLEDTask()
+{
+
 }
 
 void LCD_Task(int count)
@@ -53,11 +66,11 @@ void LCD_Task(int count)
 void JoystickServo()
 {
     int joyXVal = analogRead(XJOY_PIN);
-    Serial.print(joyXVal);                      //print the value from A1
-    Serial.println(" = input from joystick");  //print "=input from joystick" next to the value
-    Serial.print((joyXVal+520)/10);            //print a from A1 calculated, scaled value
-    Serial.println(" = output to servo");      //print "=output to servo" next to the value
-    Serial.println();
+    // Serial.print(joyXVal);                      //print the value from A1
+    // Serial.println(" = input from joystick");  //print "=input from joystick" next to the value
+    // Serial.print((joyXVal+520)/10);            //print a from A1 calculated, scaled value
+    // Serial.println(" = output to servo");      //print "=output to servo" next to the value
+    // Serial.println();
     myservo.write((joyXVal+520)/10); 
 }
 
