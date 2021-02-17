@@ -11,6 +11,7 @@ void openGPIO(void);
 int scan_I2C_Devices(void);
 void JoystickServo(void);
 void waveLEDTask(void);
+void ButtonBuzzer(void);
 
 /* DEFINES */
 #define SERVO_PIN 9
@@ -20,6 +21,8 @@ void waveLEDTask(void);
 #define LED_MATRIX_CLK  13
 #define LED_MATRIX_CS   12
 #define LED_MATRIX_DIN  11
+#define BUTTON_PIN 10
+#define BUZZER_PIN 8
 
 /* GLOBALS */
 LiquidCrystal_I2C lcd(0x27, 16, 2);
@@ -38,6 +41,7 @@ int main_fn()
     {
         Serial.println("In infinite while loop:");
         JoystickServo();
+        ButtonBuzzer();
         waveLEDTask();
         LCD_Task(loopCounter);
         loopCounter++;
@@ -63,6 +67,26 @@ void LCD_Task(int count)
     lcd.print(count);
 }
 
+void ButtonBuzzer()
+{
+    int buttonState = digitalRead(BUTTON_PIN);
+    if(buttonState == 1)
+  {
+    //output a frequency
+    digitalWrite(BUZZER_PIN,HIGH);
+    delay(200);//wait for 1ms
+    digitalWrite(BUZZER_PIN,LOW);
+    delay(200);//wait for 1ms
+  }
+  else
+  {
+    digitalWrite(BUZZER_PIN, LOW);
+  }
+  delay(10); //reading delay
+     
+}
+
+
 void JoystickServo()
 {
     int joyXVal = analogRead(XJOY_PIN);
@@ -87,6 +111,10 @@ void openGPIO()
     digitalWrite(VOUT_JOY_PIN, HIGH); //set A2 to high (+5V)
     digitalWrite(GROUND_JOY_PIN, LOW); //set A3 to low (gnd)
     myservo.attach(SERVO_PIN);
+
+    //Pushbutton and Active Buzzer Setup
+    pinMode(BUZZER_PIN, OUTPUT);
+    pinMode(BUTTON_PIN, INPUT);
 
 }
 
