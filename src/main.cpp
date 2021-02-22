@@ -27,7 +27,11 @@ void ButtonBuzzer(void);
 /* GLOBALS */
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 Servo myservo;
-LedControl dotMatrix1 = LedControl(LED_MATRIX_CLK, LED_MATRIX_CS, LED_MATRIX_DIN,1);
+LedControl dotMatrix1 = LedControl(LED_MATRIX_DIN, LED_MATRIX_CLK, LED_MATRIX_CS, 0);
+
+// example LED Matrix Image
+byte Apple [8]={B00011000,B00001000,B01110110,B11111111,B11111111,B11111111,B01111010,B00110100};
+
 
 int main_fn()
 {
@@ -42,9 +46,11 @@ int main_fn()
         Serial.println("In infinite while loop:");
         JoystickServo();
         ButtonBuzzer();
+
         waveLEDTask();
         LCD_Task(loopCounter);
         loopCounter++;
+
         delay(100);
 
     }
@@ -54,7 +60,23 @@ int main_fn()
 
 void waveLEDTask()
 {
-
+    for(int i = 0; i < 8; i++)
+    {
+       dotMatrix1.clearDisplay(0);
+       dotMatrix1.setColumn(0,i, B11111111);
+       dotMatrix1.setColumn(0,i+1,B01111110);
+       dotMatrix1.setColumn(0,i+2,B00111100);
+       dotMatrix1.setColumn(0,i+3,B00011000);
+    }
+    delay(10);
+    for(int i = 11; i > 0; i--)
+    {
+       dotMatrix1.clearDisplay(0);
+       dotMatrix1.setColumn(0,i+3, B11111111);
+       dotMatrix1.setColumn(0,i+2,B01111110);
+       dotMatrix1.setColumn(0,i+1,B00111100);
+       dotMatrix1.setColumn(0,i,B00011000);
+    }
 }
 
 void LCD_Task(int count)
@@ -104,6 +126,11 @@ void openGPIO()
     Wire.begin();
     lcd.init();
     lcd.backlight();
+
+    // LED Matrix Setup
+    dotMatrix1.shutdown(0, false);
+    dotMatrix1.setIntensity(0,0);
+    dotMatrix1.clearDisplay(0);
 
     //Joystick and Servo setup
     pinMode(VOUT_JOY_PIN, OUTPUT); //pin A3 is output
