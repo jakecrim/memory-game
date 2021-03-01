@@ -3,6 +3,7 @@
 #include <LiquidCrystal_I2C.h>
 #include <Servo.h>
 #include <LedControl.h>
+#include <time.h>
 
 /* DECLARATIONS*/
 int main_fn(void);
@@ -12,6 +13,7 @@ int scan_I2C_Devices(void);
 void JoystickServo(void);
 void waveLEDTask(void);
 void ButtonBuzzer(void);
+int generateSequence(void);
 
 /* DEFINES */
 #define SERVO_PIN 9
@@ -28,34 +30,70 @@ void ButtonBuzzer(void);
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 Servo myservo;
 LedControl dotMatrix1 = LedControl(LED_MATRIX_DIN, LED_MATRIX_CLK, LED_MATRIX_CS, 0);
+int sequence[100];
 
 // example LED Matrix Image
 byte Apple [8]={B00011000,B00001000,B01110110,B11111111,B11111111,B11111111,B01111010,B00110100};
 
 
+
 int main_fn()
 {
-    
-    int loopCounter = 0;
+    srand(time(0));
+
+    int round = 0;
+
     openGPIO();
-    scan_I2C_Devices();
 
     /* Put Cube Functions here */
     while(1)
     {
         Serial.println("In infinite while loop:");
-        JoystickServo();
-        ButtonBuzzer();
 
-        waveLEDTask();
-        LCD_Task(loopCounter);
-        loopCounter++;
+        // Generate A new random number to add to our sequence of inputs
+        sequence[round] = generateSequence();
+
+        // Serial.println("Sequence is:");
+        // for(int i = 0; i <= round; i++)
+        // {
+        //     Serial.print(" | ");
+        //     Serial.print(sequence[i]);
+        // }
+
+
+
+
+        JoystickServo(); // 1
+        ButtonBuzzer();  // 2
+        waveLEDTask();   // 3
+        // buttonLED();  // 4
+
+        LCD_Task(round);
+
+        // verifyRound();
+
+
+        // inc round
+        round++;
+
 
         delay(100);
 
     }
 
     return 0;
+}
+
+int generateSequence()
+{
+    int randNum = 0;
+
+    for(int i = 0; i<4; i++)
+    {
+        randNum = rand() % ((4 + 1) - 1) + 1;;
+    }
+
+    return randNum;
 }
 
 void waveLEDTask()
@@ -77,6 +115,8 @@ void waveLEDTask()
        dotMatrix1.setColumn(0,i+1,B00111100);
        dotMatrix1.setColumn(0,i,B00011000);
     }
+
+    // waveDetected = true;
 }
 
 void LCD_Task(int count)
@@ -99,6 +139,8 @@ void ButtonBuzzer()
     delay(200);//wait for 1ms
     digitalWrite(BUZZER_PIN,LOW);
     delay(200);//wait for 1ms
+
+    // buttonBuzzerPushed = true;
   }
   else
   {
@@ -118,6 +160,8 @@ void JoystickServo()
     // Serial.println(" = output to servo");      //print "=output to servo" next to the value
     // Serial.println();
     myservo.write((joyXVal+520)/10); 
+
+    // joystickmoved= true;
 }
 
 void openGPIO()
