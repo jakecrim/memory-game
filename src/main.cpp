@@ -10,10 +10,12 @@ int main_fn(void);
 void LCD_Task(int);
 void openGPIO(void);
 int scan_I2C_Devices(void);
-void JoystickServo(void);
+void joystickServo(void);
 void waveLEDTask(void);
-void ButtonBuzzer(void);
+void buttonBuzzer(void);
+void buttonLED(void);
 int generateSequence(void);
+
 
 /* DEFINES */
 #define SERVO_PIN 9
@@ -25,12 +27,15 @@ int generateSequence(void);
 #define LED_MATRIX_DIN  11
 #define BUTTON_PIN 10
 #define BUZZER_PIN 8
+#define BUTTON2_PIN 6
+#define LED_PIN 7
 
 /* GLOBALS */
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 Servo myservo;
 LedControl dotMatrix1 = LedControl(LED_MATRIX_DIN, LED_MATRIX_CLK, LED_MATRIX_CS, 0);
 int sequence[100];
+int buttonState2 = 0;
 
 // example LED Matrix Image
 byte Apple [8]={B00011000,B00001000,B01110110,B11111111,B11111111,B11111111,B01111010,B00110100};
@@ -54,24 +59,20 @@ int main_fn()
         sequence[round] = generateSequence();
 
         // Serial.println("Sequence is:");
-        // for(int i = 0; i <= round; i++)
-        // {
-        //     Serial.print(" | ");
-        //     Serial.print(sequence[i]);
-        // }
+         for(int i = 0; i <= round; i++)
+         {
+            Serial.print(" | ");
+            Serial.print(sequence[i]);
+         }
 
-
-
-
-        JoystickServo(); // 1
-        ButtonBuzzer();  // 2
+        joystickServo(); // 1
+        buttonBuzzer();  // 2
         waveLEDTask();   // 3
-        // buttonLED();  // 4
+        buttonLED();  // 4
 
         LCD_Task(round);
 
-        // verifyRound();
-
+        //verifyRound();
 
         // inc round
         round++;
@@ -129,7 +130,7 @@ void LCD_Task(int count)
     lcd.print(count);
 }
 
-void ButtonBuzzer()
+void buttonBuzzer()
 {
     int buttonState = digitalRead(BUTTON_PIN);
     if(buttonState == 1)
@@ -151,7 +152,7 @@ void ButtonBuzzer()
 }
 
 
-void JoystickServo()
+void joystickServo()
 {
     int joyXVal = analogRead(XJOY_PIN);
     // Serial.print(joyXVal);                      //print the value from A1
@@ -162,6 +163,22 @@ void JoystickServo()
     myservo.write((joyXVal+520)/10); 
 
     // joystickmoved= true;
+}
+
+void buttonLED()
+{
+    buttonState2 = digitalRead(BUTTON2_PIN);
+    if (buttonState2 == HIGH)
+    {
+        digitalWrite(LED_PIN, HIGH);
+        delay(100);
+    }
+    else
+    {
+        digitalWrite(LED_PIN, LOW);
+    }
+
+
 }
 
 void openGPIO()
@@ -187,6 +204,10 @@ void openGPIO()
     pinMode(BUZZER_PIN, OUTPUT);
     pinMode(BUTTON_PIN, INPUT);
 
+    //Pushbutton 2 and LED Setup
+    pinMode(LED_PIN, OUTPUT);
+    pinMode(BUTTON2_PIN, INPUT);
+
 }
 
 int scan_I2C_Devices()
@@ -207,7 +228,7 @@ int scan_I2C_Devices()
             Serial.print(address,HEX);
             deviceCount++;
         }
-        else if(error = 4)
+        else if(error == 4)
         {
            Serial.print("Unknown error at address 0x");
            if (address<16)
