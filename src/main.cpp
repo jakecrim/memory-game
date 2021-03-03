@@ -15,6 +15,7 @@ void waveLEDTask(void);
 void buttonBuzzer(void);
 void buttonLED(void);
 int generateSequence(void);
+int getDistance(void);
 
 
 /* DEFINES */
@@ -29,6 +30,9 @@ int generateSequence(void);
 #define BUZZER_PIN 8
 #define BUTTON2_PIN 6
 #define LED_PIN 7
+
+#define TRIG1 2
+#define ECHO1 3
 
 /* GLOBALS */
 LiquidCrystal_I2C lcd(0x27, 16, 2);
@@ -53,17 +57,18 @@ int main_fn()
     /* Put Cube Functions here */
     while(1)
     {
+        int distance = 0;
         Serial.println("In infinite while loop:");
 
-        // Generate A new random number to add to our sequence of inputs
-        sequence[round] = generateSequence();
+        // // Generate A new random number to add to our sequence of inputs
+        // sequence[round] = generateSequence();
 
-        // Serial.println("Sequence is:");
-         for(int i = 0; i <= round; i++)
-         {
-            Serial.print(" | ");
-            Serial.print(sequence[i]);
-         }
+        // // Serial.println("Sequence is:");
+        //  for(int i = 0; i <= round; i++)
+        //  {
+        //     Serial.print(" | ");
+        //     Serial.print(sequence[i]);
+        //  }
 
         joystickServo(); // 1
         buttonBuzzer();  // 2
@@ -72,17 +77,39 @@ int main_fn()
 
         LCD_Task(round);
 
-        //verifyRound();
+        distance = getDistance();
+        Serial.print("Distance measured:");
+        Serial.println(distance);
 
-        // inc round
+        // //verifyRound();
+
+        // // inc round
         round++;
 
 
-        delay(100);
 
     }
 
     return 0;
+}
+
+int getDistance()
+{
+    int distance = 0;
+    long echoTime = 0;
+
+    digitalWrite(TRIG1, LOW);
+    delayMicroseconds(2);
+
+    digitalWrite(TRIG1, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(TRIG1, LOW);
+
+    echoTime = pulseIn(ECHO1, HIGH);
+    Serial.println(echoTime);
+    distance = echoTime * 0.034 / 2;
+
+    return distance;
 }
 
 int generateSequence()
@@ -139,7 +166,6 @@ void buttonBuzzer()
     digitalWrite(BUZZER_PIN,HIGH);
     delay(200);//wait for 1ms
     digitalWrite(BUZZER_PIN,LOW);
-    delay(200);//wait for 1ms
 
     // buttonBuzzerPushed = true;
   }
@@ -171,7 +197,6 @@ void buttonLED()
     if (buttonState2 == HIGH)
     {
         digitalWrite(LED_PIN, HIGH);
-        delay(100);
     }
     else
     {
@@ -207,6 +232,10 @@ void openGPIO()
     //Pushbutton 2 and LED Setup
     pinMode(LED_PIN, OUTPUT);
     pinMode(BUTTON2_PIN, INPUT);
+
+    // Ultrasonic sensor setup
+    pinMode(TRIG1, OUTPUT);
+    pinMode(ECHO1, INPUT);
 
 }
 
