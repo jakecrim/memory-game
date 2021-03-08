@@ -16,6 +16,7 @@ void buttonBuzzer(void);
 void buttonLED(void);
 int generateSequence(void);
 int getDistance(void);
+void verifyRound(void);
 
 
 /* DEFINES */
@@ -34,12 +35,21 @@ int getDistance(void);
 #define TRIG1 2
 #define ECHO1 3
 
+#define WAVE_THRESHOLD 10
+
 /* GLOBALS */
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 Servo myservo;
 LedControl dotMatrix1 = LedControl(LED_MATRIX_DIN, LED_MATRIX_CLK, LED_MATRIX_CS, 0);
 int sequence[100];
 int buttonState2 = 0;
+
+// Input State Flags
+bool waveFlag = false;
+bool LEDbuttonFlag = false;
+bool buzzerButtonFlag = false;
+bool joystickServoFlag = false;
+
 
 // example LED Matrix Image
 byte Apple [8]={B00011000,B00001000,B01110110,B11111111,B11111111,B11111111,B01111010,B00110100};
@@ -57,7 +67,6 @@ int main_fn()
     /* Put Cube Functions here */
     while(1)
     {
-        int distance = 0;
         Serial.println("In infinite while loop:");
 
         // // Generate A new random number to add to our sequence of inputs
@@ -77,39 +86,34 @@ int main_fn()
 
         LCD_Task(round);
 
-        distance = getDistance();
-        Serial.print("Distance measured:");
-        Serial.println(distance);
 
-        // //verifyRound();
+        // verifyRound();
 
-        // // inc round
+        // inc round
         round++;
-
-
-
+        delay(25);
     }
 
     return 0;
 }
 
-int getDistance()
+void verifyRound()
 {
-    int distance = 0;
-    long echoTime = 0;
-
-    digitalWrite(TRIG1, LOW);
-    delayMicroseconds(2);
-
-    digitalWrite(TRIG1, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(TRIG1, LOW);
-
-    echoTime = pulseIn(ECHO1, HIGH);
-    Serial.println(echoTime);
-    distance = echoTime * 0.034 / 2;
-
-    return distance;
+    Serial.println("Status of inputs:");
+    Serial.println("Joystick: ");
+    Serial.print(joystickServoFlag);
+    Serial.println("Buzzer Button: ");
+    Serial.print(joystickServoFlag);
+    Serial.println("Wave Grid: ");
+    Serial.print(waveFlag);
+    Serial.println("LED Button: ");
+    Serial.print(joystickServoFlag);
+    
+    // Clear Flags
+    waveFlag = false;
+    joystickServoFlag = false;
+    LEDbuttonFlag = false;
+    buzzerButtonFlag = false;
 }
 
 int generateSequence()
@@ -126,24 +130,34 @@ int generateSequence()
 
 void waveLEDTask()
 {
-    for(int i = 0; i < 8; i++)
-    {
-       dotMatrix1.clearDisplay(0);
-       dotMatrix1.setColumn(0,i, B11111111);
-       dotMatrix1.setColumn(0,i+1,B01111110);
-       dotMatrix1.setColumn(0,i+2,B00111100);
-       dotMatrix1.setColumn(0,i+3,B00011000);
-    }
-    delay(10);
-    for(int i = 11; i > 0; i--)
-    {
-       dotMatrix1.clearDisplay(0);
-       dotMatrix1.setColumn(0,i+3, B11111111);
-       dotMatrix1.setColumn(0,i+2,B01111110);
-       dotMatrix1.setColumn(0,i+1,B00111100);
-       dotMatrix1.setColumn(0,i,B00011000);
-    }
+    int distance = 0;
 
+    distance = getDistance();
+    Serial.print("Distance measured:");
+    Serial.println(distance);
+
+    if(distance < WAVE_THRESHOLD)
+    {
+        for(int i = 0; i < 8; i++)
+        {
+            dotMatrix1.clearDisplay(0);
+            dotMatrix1.setColumn(0,i, B11111111);
+            dotMatrix1.setColumn(0,i+1,B01111110);
+            dotMatrix1.setColumn(0,i+2,B00111100);
+            dotMatrix1.setColumn(0,i+3,B00011000);
+        }
+        delay(10);
+        for(int i = 11; i > 0; i--)
+        {
+            dotMatrix1.clearDisplay(0);
+            dotMatrix1.setColumn(0,i+3, B11111111);
+            dotMatrix1.setColumn(0,i+2,B01111110);
+            dotMatrix1.setColumn(0,i+1,B00111100);
+            dotMatrix1.setColumn(0,i,B00011000);
+        }
+
+        waveFlag = true;
+    }
     // waveDetected = true;
 }
 
@@ -197,6 +211,7 @@ void buttonLED()
     if (buttonState2 == HIGH)
     {
         digitalWrite(LED_PIN, HIGH);
+        delay(500);
     }
     else
     {
@@ -204,6 +219,25 @@ void buttonLED()
     }
 
 
+}
+
+int getDistance()
+{
+    int distance = 0;
+    long echoTime = 0;
+
+    digitalWrite(TRIG1, LOW);
+    delayMicroseconds(2);
+
+    digitalWrite(TRIG1, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(TRIG1, LOW);
+
+    echoTime = pulseIn(ECHO1, HIGH);
+    Serial.println(echoTime);
+    distance = echoTime * 0.034 / 2;
+
+    return distance;
 }
 
 void openGPIO()
