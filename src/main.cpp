@@ -24,6 +24,7 @@ void verifyRound(void);
 #define GROUND_JOY_PIN A3
 #define VOUT_JOY_PIN A2
 #define XJOY_PIN A1
+#define YJOY_PIN A0
 #define LED_MATRIX_CLK  13
 #define LED_MATRIX_CS   12
 #define LED_MATRIX_DIN  11
@@ -195,12 +196,24 @@ void buttonBuzzer()
 void joystickServo()
 {
     int joyXVal = analogRead(XJOY_PIN);
-    // Serial.print(joyXVal);                      //print the value from A1
+    int joyYVal = analogRead(YJOY_PIN);
+
+    if ((joyXVal > 800 || joyXVal < 300) || (joyYVal > 800 || joyYVal < 300))
+    {
+        myservo.write(180);
+        joystickServoFlag = true;
+    }
+    else
+    {
+        myservo.write(0);
+    }
+    
+    Serial.print(joyXVal);                      //print the value from A1
     // Serial.println(" = input from joystick");  //print "=input from joystick" next to the value
     // Serial.print((joyXVal+520)/10);            //print a from A1 calculated, scaled value
     // Serial.println(" = output to servo");      //print "=output to servo" next to the value
     // Serial.println();
-    myservo.write((joyXVal+520)/10); 
+    //myservo.write((joyXVal+520)/10); 
 
     // joystickmoved= true;
 }
