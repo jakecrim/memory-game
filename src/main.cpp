@@ -23,6 +23,7 @@ int getDistance(void);
 #define GROUND_JOY_PIN A3
 #define VOUT_JOY_PIN A2
 #define XJOY_PIN A1
+#define YJOY_PIN A0
 #define LED_MATRIX_CLK  13
 #define LED_MATRIX_CS   12
 #define LED_MATRIX_DIN  11
@@ -40,6 +41,9 @@ Servo myservo;
 LedControl dotMatrix1 = LedControl(LED_MATRIX_DIN, LED_MATRIX_CLK, LED_MATRIX_CS, 0);
 int sequence[100];
 int buttonState2 = 0;
+
+/* FLAGS */
+bool joystickServoFlag = false;
 
 // example LED Matrix Image
 byte Apple [8]={B00011000,B00001000,B01110110,B11111111,B11111111,B11111111,B01111010,B00110100};
@@ -78,8 +82,8 @@ int main_fn()
         LCD_Task(round);
 
         distance = getDistance();
-        Serial.print("Distance measured:");
-        Serial.println(distance);
+        //Serial.print("Distance measured:");
+        //Serial.println(distance);
 
         // //verifyRound();
 
@@ -106,7 +110,7 @@ int getDistance()
     digitalWrite(TRIG1, LOW);
 
     echoTime = pulseIn(ECHO1, HIGH);
-    Serial.println(echoTime);
+    //Serial.println(echoTime);
     distance = echoTime * 0.034 / 2;
 
     return distance;
@@ -181,12 +185,24 @@ void buttonBuzzer()
 void joystickServo()
 {
     int joyXVal = analogRead(XJOY_PIN);
-    // Serial.print(joyXVal);                      //print the value from A1
+    int joyYVal = analogRead(YJOY_PIN);
+
+    if ((joyXVal > 800 || joyXVal < 300) || (joyYVal > 800 || joyYVal < 300))
+    {
+        myservo.write(180);
+        joystickServoFlag = true;
+    }
+    else
+    {
+        myservo.write(0);
+    }
+    
+    Serial.print(joyXVal);                      //print the value from A1
     // Serial.println(" = input from joystick");  //print "=input from joystick" next to the value
     // Serial.print((joyXVal+520)/10);            //print a from A1 calculated, scaled value
     // Serial.println(" = output to servo");      //print "=output to servo" next to the value
     // Serial.println();
-    myservo.write((joyXVal+520)/10); 
+    //myservo.write((joyXVal+520)/10); 
 
     // joystickmoved= true;
 }
