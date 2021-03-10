@@ -52,7 +52,6 @@ bool roundVerifiedFlag = true;
 int userInputChoice = 0; 
 
 
-
 // example LED Matrix Image
 byte Apple [8]={B00011000,B00001000,B01110110,B11111111,B11111111,B11111111,B01111010,B00110100};
 
@@ -208,8 +207,12 @@ int generateSequence()
 
     for(int i = 0; i<4; i++)
     {
+<<<<<<< HEAD
+        randNum = rand() % ((4 + 1) - 1) + 1;
+=======
         // randNum = rand() % ((4 + 1) - 1) + 1;;
         randNum = random(1,5);
+>>>>>>> a0258025f8e0b4fc2c51ce6579934adb1e56e6f2
     }
 
     return randNum;
@@ -316,8 +319,6 @@ void buttonLED()
     {
         digitalWrite(LED_PIN, LOW);
     }
-
-
 }
 
 int getDistance()
