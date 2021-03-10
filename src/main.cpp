@@ -16,7 +16,9 @@ void buttonBuzzer(void);
 void buttonLED(void);
 int generateSequence(void);
 int getDistance(void);
-void verifyRound(void);
+bool verifyInput(int);
+
+void actuateSequence(int);
 
 
 /* DEFINES */
@@ -46,10 +48,9 @@ int sequence[100];
 int buttonState2 = 0;
 
 // Input State Flags
-bool waveFlag = false;
-bool LEDbuttonFlag = false;
-bool buzzerButtonFlag = false;
-bool joystickServoFlag = false;
+bool roundVerifiedFlag = true;
+int userInputChoice = 0; 
+
 
 // example LED Matrix Image
 byte Apple [8]={B00011000,B00001000,B01110110,B11111111,B11111111,B11111111,B01111010,B00110100};
@@ -58,26 +59,41 @@ byte Apple [8]={B00011000,B00001000,B01110110,B11111111,B11111111,B11111111,B011
 
 int main_fn()
 {
-    srand(time(0));
+    // srand(time(NULL));
+    randomSeed(analogRead(A4));
 
-    int round = 0;
+    int round = 1;
+    // this 
+    int iterationCount = 0;
+    bool verifiedStatus = true;
 
     openGPIO();
 
     /* Put Cube Functions here */
     while(1)
     {
-        Serial.println("In infinite while loop:");
+        // Serial.println("In infinite while loop:");
 
-        // // Generate A new random number to add to our sequence of inputs
-        // sequence[round] = generateSequence();
+        if(roundVerifiedFlag)
+        {
+            Serial.print("New Round:");
+            Serial.println(round);
+            // Generate A new random number to add to our sequence of inputs
+            sequence[round - 1] = generateSequence();
 
-        // // Serial.println("Sequence is:");
-        //  for(int i = 0; i <= round; i++)
-        //  {
-        //     Serial.print(" | ");
-        //     Serial.print(sequence[i]);
-        //  }
+            // activates the actuator to show the user the pattern each time
+            //      a random number is generated
+            actuateSequence(sequence[round - 1]);
+
+            // Serial.println("Sequence is:");
+            for(int i = 0; i < round; i++)
+            {
+                Serial.print(" | ");
+                Serial.print(sequence[i]);
+            }
+            Serial.println(" ");
+            roundVerifiedFlag = false;
+        }
 
         joystickServo(); // 1
         buttonBuzzer();  // 2
@@ -87,42 +103,100 @@ int main_fn()
         LCD_Task(round);
 
 
-        // verifyRound();
+        if(userInputChoice !=0)
+        {
+            iterationCount = 0;
 
-        // inc round
-        round++;
-        delay(25);
+            while(verifiedStatus && iterationCount < round)
+            {
+                if(userInputChoice != 0)
+                {
+                    verifiedStatus = verifyInput(iterationCount);
+                    iterationCount++;
+                    Serial.println("Input Verified");
+                    Serial.println("iteration count vs round ");
+                    Serial.println(iterationCount);
+                    Serial.println(round);
+                }
+
+                joystickServo(); // 1
+                buttonBuzzer();  // 2
+                waveLEDTask();   // 3
+                buttonLED();  // 4
+            }
+            
+            if(verifiedStatus == false)
+            {
+                Serial.println("Input was wrong!");
+                roundVerifiedFlag = true;
+                break;
+            }
+            
+            // inc round
+            round++;
+            roundVerifiedFlag = true;
+        }
+
+        delay(1000);
     }
+
+    Serial.println("!!! GAME OVER !!!");
 
     return 0;
 }
 
-void verifyRound()
+bool verifyInput(int iterationCount)
 {
-    Serial.println("Status of inputs:");
-    Serial.println("Joystick: ");
-    Serial.print(joystickServoFlag);
-    Serial.println("Buzzer Button: ");
-    Serial.print(joystickServoFlag);
-    Serial.println("Wave Grid: ");
-    Serial.print(waveFlag);
-    Serial.println("LED Button: ");
-    Serial.print(joystickServoFlag);
+    bool success = false;
+    Serial.print("User Activated Input:");
+    Serial.println(userInputChoice);
+
+    Serial.print("Correct Input is:");
+    Serial.println(sequence[iterationCount]);
+
+    if(sequence[iterationCount] == userInputChoice)
+    {
+        success = true;
+    }
+    else
+    {
+        success = false;
+    }
+
+
     
     // Clear Flags
-    waveFlag = false;
-    joystickServoFlag = false;
-    LEDbuttonFlag = false;
-    buzzerButtonFlag = false;
+    userInputChoice = 0;
+
+    delay(1000);
+    return success;
+
+}
+
+void actuateSequence(int station)
+{
+    
+    // *************
+    // SHOW LED CUBE
+    if(station == 4)
+    {
+
+    }
 }
 
 int generateSequence()
 {
+    // srand(time(0));
     int randNum = 0;
 
     for(int i = 0; i<4; i++)
     {
+<<<<<<< HEAD
         randNum = rand() % ((4 + 1) - 1) + 1;
+=======
+        // randNum = rand() % ((4 + 1) - 1) + 1;;
+        randNum = random(1,5);
+>>>>>>> a0258025f8e0b4fc2c51ce6579934adb1e56e6f2
     }
 
     return randNum;
@@ -133,8 +207,8 @@ void waveLEDTask()
     int distance = 0;
 
     distance = getDistance();
-    Serial.print("Distance measured:");
-    Serial.println(distance);
+    // Serial.print("Distance measured:");
+    // Serial.println(distance);
 
     if(distance < WAVE_THRESHOLD)
     {
@@ -156,7 +230,7 @@ void waveLEDTask()
             dotMatrix1.setColumn(0,i,B00011000);
         }
 
-        waveFlag = true;
+        userInputChoice = 3;
     }
     // waveDetected = true;
 }
@@ -175,20 +249,19 @@ void buttonBuzzer()
 {
     int buttonState = digitalRead(BUTTON_PIN);
     if(buttonState == 1)
-  {
-    //output a frequency
-    digitalWrite(BUZZER_PIN,HIGH);
-    delay(200);//wait for 1ms
-    digitalWrite(BUZZER_PIN,LOW);
-
-    // buttonBuzzerPushed = true;
-  }
-  else
-  {
-    digitalWrite(BUZZER_PIN, LOW);
-  }
-  delay(10); //reading delay
-     
+    {
+        //output a frequency
+        digitalWrite(BUZZER_PIN,HIGH);
+        delay(200);//wait for 1ms
+        digitalWrite(BUZZER_PIN,LOW);
+    
+        userInputChoice = 2;
+    }
+    else
+    {
+        digitalWrite(BUZZER_PIN, LOW);
+    }
+    delay(10); //reading delay
 }
 
 
@@ -200,14 +273,14 @@ void joystickServo()
     if ((joyXVal > 800 || joyXVal < 300) || (joyYVal > 800 || joyYVal < 300))
     {
         myservo.write(180);
-        joystickServoFlag = true;
+        userInputChoice = 1;
     }
     else
     {
         myservo.write(0);
     }
     
-    Serial.print(joyXVal);                      //print the value from A1
+    // Serial.print(joyXVal);                      //print the value from A1
     // Serial.println(" = input from joystick");  //print "=input from joystick" next to the value
     // Serial.print((joyXVal+520)/10);            //print a from A1 calculated, scaled value
     // Serial.println(" = output to servo");      //print "=output to servo" next to the value
@@ -223,6 +296,7 @@ void buttonLED()
     if (buttonState2 == HIGH)
     {
         digitalWrite(LED_PIN, HIGH);
+        userInputChoice = 4;
         delay(500);
     }
     else
@@ -244,7 +318,7 @@ int getDistance()
     digitalWrite(TRIG1, LOW);
 
     echoTime = pulseIn(ECHO1, HIGH);
-    Serial.println(echoTime);
+    // Serial.println(echoTime);
     distance = echoTime * 0.034 / 2;
 
     return distance;
