@@ -175,7 +175,19 @@ bool verifyInput(int iterationCount)
 
 void actuateSequence(int station)
 {
-    
+    if(station == 1)
+    {
+        myservo.write(180);
+        delay(100);
+        myservo.write(0);
+    }
+    if(station == 2)
+    {
+        digitalWrite(BUZZER_PIN,HIGH);
+        delay(200);//wait for 1ms
+        digitalWrite(BUZZER_PIN,LOW);
+        delay(10);
+    }
     // *************
     // SHOW LED CUBE
     if(station == 4)
