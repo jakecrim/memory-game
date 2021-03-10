@@ -177,8 +177,8 @@ void actuateSequence(int station)
 {
     
     // *************
-    // SHOW LED CUBE
-    if(station == 4)
+    // SHOW DOT MATRIX WAVE 
+    if(station == 3)
     {
         for(int i = 0; i < 8; i++)
         {
@@ -197,6 +197,13 @@ void actuateSequence(int station)
             dotMatrix1.setColumn(0,i+1,B00111100);
             dotMatrix1.setColumn(0,i,B00011000);
         }
+    }
+
+    if(station == 4)
+    {
+        digitalWrite(LED_PIN, HIGH);
+        delay(500);
+        digitalWrite(LED_PIN, LOW);
     }
 }
 
