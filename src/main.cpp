@@ -191,12 +191,8 @@ int generateSequence()
 
     for(int i = 0; i<4; i++)
     {
-<<<<<<< HEAD
-        randNum = rand() % ((4 + 1) - 1) + 1;
-=======
         // randNum = rand() % ((4 + 1) - 1) + 1;;
         randNum = random(1,5);
->>>>>>> a0258025f8e0b4fc2c51ce6579934adb1e56e6f2
     }
 
     return randNum;
