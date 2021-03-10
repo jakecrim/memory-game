@@ -180,7 +180,23 @@ void actuateSequence(int station)
     // SHOW LED CUBE
     if(station == 4)
     {
-
+        for(int i = 0; i < 8; i++)
+        {
+            dotMatrix1.clearDisplay(0);
+            dotMatrix1.setColumn(0,i, B11111111);
+            dotMatrix1.setColumn(0,i+1,B01111110);
+            dotMatrix1.setColumn(0,i+2,B00111100);
+            dotMatrix1.setColumn(0,i+3,B00011000);
+        }
+        delay(10);
+        for(int i = 11; i > 0; i--)
+        {
+            dotMatrix1.clearDisplay(0);
+            dotMatrix1.setColumn(0,i+3, B11111111);
+            dotMatrix1.setColumn(0,i+2,B01111110);
+            dotMatrix1.setColumn(0,i+1,B00111100);
+            dotMatrix1.setColumn(0,i,B00011000);
+        }
     }
 }
 
