@@ -51,7 +51,6 @@ bool LEDbuttonFlag = false;
 bool buzzerButtonFlag = false;
 bool joystickServoFlag = false;
 
-
 // example LED Matrix Image
 byte Apple [8]={B00011000,B00001000,B01110110,B11111111,B11111111,B11111111,B01111010,B00110100};
 
@@ -123,7 +122,7 @@ int generateSequence()
 
     for(int i = 0; i<4; i++)
     {
-        randNum = rand() % ((4 + 1) - 1) + 1;;
+        randNum = rand() % ((4 + 1) - 1) + 1;
     }
 
     return randNum;
@@ -230,8 +229,6 @@ void buttonLED()
     {
         digitalWrite(LED_PIN, LOW);
     }
-
-
 }
 
 int getDistance()
