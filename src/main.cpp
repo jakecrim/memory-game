@@ -83,6 +83,7 @@ int main_fn()
 
             // activates the actuator to show the user the pattern each time
             //      a random number is generated
+            // sequence[round - 1] = 1;
             actuateSequence(sequence[round - 1]);
 
             // Serial.println("Sequence is:");
@@ -128,8 +129,8 @@ int main_fn()
             if(verifiedStatus == false)
             {
                 Serial.println("Input was wrong!");
-                roundVerifiedFlag = true;
-                break;
+                roundVerifiedFlag = false;
+                // break;
             }
             
             // inc round
@@ -178,7 +179,7 @@ void actuateSequence(int station)
     if(station == 1)
     {
         myservo.write(180);
-        delay(100);
+        delay(250);
         myservo.write(0);
     }
     if(station == 2)
@@ -373,6 +374,8 @@ void openGPIO()
     digitalWrite(VOUT_JOY_PIN, HIGH); //set A2 to high (+5V)
     digitalWrite(GROUND_JOY_PIN, LOW); //set A3 to low (gnd)
     myservo.attach(SERVO_PIN);
+    myservo.write(0);
+    delay(200);
 
     //Pushbutton and Active Buzzer Setup
     pinMode(BUZZER_PIN, OUTPUT);
