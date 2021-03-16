@@ -17,6 +17,7 @@ void buttonLED(void);
 int generateSequence(void);
 int getDistance(void);
 bool verifyInput(int);
+void gameOver(void);
 
 void actuateSequence(int);
 
@@ -30,8 +31,8 @@ void actuateSequence(int);
 #define LED_MATRIX_CLK  13
 #define LED_MATRIX_CS   12
 #define LED_MATRIX_DIN  11
-#define BUTTON_PIN 10
-#define BUZZER_PIN 8
+#define BUTTON_PIN 27
+#define BUZZER_PIN 23
 #define BUTTON2_PIN 6
 #define LED_PIN 7
 
@@ -69,6 +70,17 @@ int main_fn()
 
     openGPIO();
 
+    // // TESTING LOOP
+    // int testVar = 0;
+    // while(1)
+    // {
+    //     testVar = getDistance();
+    //     Serial.println("Testing Distance:");
+    //     Serial.print(testVar);
+    //     actuateSequence(2);
+    //     delay(100);
+    // }
+
     /* Put Cube Functions here */
     while(1)
     {
@@ -84,7 +96,12 @@ int main_fn()
             // activates the actuator to show the user the pattern each time
             //      a random number is generated
             // sequence[round - 1] = 1;
-            actuateSequence(sequence[round - 1]);
+            for(int i = 0; i < round; i++)
+            {
+                actuateSequence(sequence[i]);
+                delay(500);
+            }
+            // actuateSequence(sequence[round - 1]);
 
             // Serial.println("Sequence is:");
             for(int i = 0; i < round; i++)
@@ -130,6 +147,7 @@ int main_fn()
             {
                 Serial.println("Input was wrong!");
                 roundVerifiedFlag = false;
+                gameOver();
                 // break;
             }
             
@@ -144,6 +162,15 @@ int main_fn()
     Serial.println("!!! GAME OVER !!!");
 
     return 0;
+}
+
+void gameOver()
+{
+    while(1)
+    {
+        Serial.println("GAME OVER");
+        delay(1000);
+    }
 }
 
 bool verifyInput(int iterationCount)
@@ -178,9 +205,9 @@ void actuateSequence(int station)
 {
     if(station == 1)
     {
-        myservo.write(180);
+        // myservo.write(180);
         delay(250);
-        myservo.write(0);
+        // myservo.write(0);
     }
     if(station == 2)
     {
@@ -215,6 +242,7 @@ void actuateSequence(int station)
     if(station == 4)
     {
         digitalWrite(LED_PIN, HIGH);
+        Serial.println("LED BLUE ON");
         delay(500);
         digitalWrite(LED_PIN, LOW);
     }
