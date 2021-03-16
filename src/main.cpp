@@ -14,6 +14,7 @@ void JoystickServo(void);
 void waveLEDTask(void);
 void ButtonBuzzer(void);
 int generateSequence(void);
+int getDistance(void);
 
 /* DEFINES */
 #define SERVO_PIN 9
@@ -25,6 +26,8 @@ int generateSequence(void);
 #define LED_MATRIX_DIN  11
 #define BUTTON_PIN 10
 #define BUZZER_PIN 8
+#define TRIG1 10
+#define ECHO1 9
 
 /* GLOBALS */
 LiquidCrystal_I2C lcd(0x27, 16, 2);
@@ -98,6 +101,8 @@ int generateSequence()
 
 void waveLEDTask()
 {
+    int distance = 0;
+
     for(int i = 0; i < 8; i++)
     {
        dotMatrix1.clearDisplay(0);
@@ -116,7 +121,31 @@ void waveLEDTask()
        dotMatrix1.setColumn(0,i,B00011000);
     }
 
+    distance = getDistance();
+    Serial.print("Distance measured:");
+    Serial.println(distance);
+
     // waveDetected = true;
+}
+
+int getDistance()
+{
+    int distance = 0;
+    long echoTime = 0;
+
+    digitalWrite(TRIG1, LOW);
+    delayMicroseconds(2);
+
+    digitalWrite(TRIG1, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(TRIG1, LOW);
+
+    echoTime = pulseIn(ECHO1, HIGH);
+
+    distance = echoTime * 0.034 / 2;
+
+    return distance;
+
 }
 
 void LCD_Task(int count)
@@ -175,6 +204,9 @@ void openGPIO()
     dotMatrix1.shutdown(0, false);
     dotMatrix1.setIntensity(0,0);
     dotMatrix1.clearDisplay(0);
+    // ultra-sonic sensor setup
+    pinMode(TRIG1, OUTPUT);
+    pinMode(ECHO1, INPUT);
 
     //Joystick and Servo setup
     pinMode(VOUT_JOY_PIN, OUTPUT); //pin A3 is output
