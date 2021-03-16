@@ -56,6 +56,7 @@ int userInputChoice = 0;
 // example LED Matrix Image
 byte Apple [8]={B00011000,B00001000,B01110110,B11111111,B11111111,B11111111,B01111010,B00110100};
 
+int bruhTest = 699;
 
 
 int main_fn()
