@@ -89,6 +89,7 @@ int main_fn()
 
         if(roundVerifiedFlag)
         {
+            delay(400);
             Serial.print("New Round:");
             Serial.println(round);
             // Generate A new random number to add to our sequence of inputs
@@ -96,7 +97,7 @@ int main_fn()
 
             // activates the actuator to show the user the pattern each time
             //      a random number is generated
-            // sequence[round - 1] = 1;
+            // sequence[round - 1] = 2;
             for(int i = 0; i < round; i++)
             {
                 actuateSequence(sequence[i]);
@@ -157,7 +158,7 @@ int main_fn()
             roundVerifiedFlag = true;
         }
 
-        delay(1000);
+        delay(100);
     }
 
     Serial.println("!!! GAME OVER !!!");
@@ -206,9 +207,9 @@ void actuateSequence(int station)
 {
     if(station == 1)
     {
-        // myservo.write(180);
+        myservo.write(180);
         delay(250);
-        // myservo.write(0);
+        myservo.write(0);
     }
     if(station == 2)
     {
@@ -244,7 +245,7 @@ void actuateSequence(int station)
     {
         digitalWrite(LED_PIN, HIGH);
         Serial.println("LED BLUE ON");
-        delay(500);
+        delay(400);
         digitalWrite(LED_PIN, LOW);
     }
 }
@@ -378,31 +379,12 @@ void buttonLED()
     {
         digitalWrite(LED_PIN, HIGH);
         userInputChoice = 4;
-        delay(500);
+        delay(300);
     }
     else
     {
         digitalWrite(LED_PIN, LOW);
     }
-}
-
-int getDistance()
-{
-    int distance = 0;
-    long echoTime = 0;
-
-    digitalWrite(TRIG1, LOW);
-    delayMicroseconds(2);
-
-    digitalWrite(TRIG1, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(TRIG1, LOW);
-
-    echoTime = pulseIn(ECHO1, HIGH);
-    // Serial.println(echoTime);
-    distance = echoTime * 0.034 / 2;
-
-    return distance;
 }
 
 void openGPIO()
