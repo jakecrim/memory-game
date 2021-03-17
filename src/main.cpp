@@ -17,7 +17,7 @@ void buttonLED(void);
 int generateSequence(void);
 int getDistance(void);
 bool verifyInput(int);
-void gameOver(void);
+void gameOver(int);
 
 void actuateSequence(int);
 
@@ -149,7 +149,7 @@ int main_fn()
             {
                 Serial.println("Input was wrong!");
                 roundVerifiedFlag = false;
-                gameOver();
+                gameOver(round);
                 // break;
             }
             
@@ -166,11 +166,16 @@ int main_fn()
     return 0;
 }
 
-void gameOver()
+void gameOver(int round)
 {
     while(1)
     {
         Serial.println("GAME OVER");
+        lcd.setCursor(1,0);
+        lcd.print("!!GAME OVER!!");
+        lcd.setCursor(0,1);
+        lcd.print("Good Job! Score: ");
+        lcd.print(round);
         delay(1000);
     }
 }
@@ -320,10 +325,9 @@ int getDistance()
 void LCD_Task(int count)
 {
     lcd.setCursor(1,0);
-    lcd.print("Round: ");
-    lcd.print(count);
+    lcd.print("~~Memory Game~~ ");
     lcd.setCursor(0,1);
-    lcd.print("Bottom line: ");
+    lcd.print("Round: ");
     lcd.print(count);
 }
 
